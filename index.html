@@ -4,9 +4,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AvePOS - Management System</title>
+    <title>AvePOS - Management System (Demo)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ==== Demo-mode lock styles (tidak menyentuh style.css asli) ==== */
+        .demo-banner {
+            background: linear-gradient(90deg, #fef3c7, #fde68a);
+            color: #92400e;
+            font-size: 12.5px;
+            font-weight: 600;
+            text-align: center;
+            padding: 7px 10px;
+            letter-spacing: .2px;
+            border-bottom: 1px solid #f5cf7a;
+        }
+
+        .nav-item.locked {
+            opacity: .55;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .nav-item.locked:hover {
+            background: transparent !important;
+            color: inherit !important;
+        }
+
+        .nav-item.locked .lock-ic {
+            margin-left: auto;
+            font-size: 11px;
+            opacity: .85;
+        }
+
+        .nav-item.locked.shake {
+            animation: shakeLock .35s ease;
+        }
+
+        @keyframes shakeLock {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        #demo-toast {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            transform: translateX(-50%) translateY(20px);
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,.25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+            z-index: 9999;
+        }
+
+        #demo-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #demo-toast i {
+            color: #fbbf24;
+        }
+    </style>
 </head>
 
 <body>
@@ -30,6 +99,9 @@
     </div>
 
     <div class="app-container">
+        <div class="demo-banner"><i class="fa-solid fa-circle-info"></i>
+            Mode Demo — hanya menu <b>Dashboard</b> dan <b>Transaksi</b> yang aktif, menu lain hanya tampilan.
+        </div>
         <header class="app-header">
             <div class="path-info"><i class="fa-solid fa-folder-open"></i> <span id="path-indicator">/home</span></div>
             <div class="badge badge-info" id="role-indicator">Role: -</div>
@@ -52,25 +124,25 @@
                             class="fa-solid fa-chart-pie"></i> Dashboard</a>
                     <a class="nav-item" onclick="navigate(event, 'transaksi', '/transaksi')"><i
                             class="fa-solid fa-cash-register"></i> Transaksi</a>
-                    <a class="nav-item" onclick="navigate(event, 'konsumen', '/konsumen')"><i
-                            class="fa-solid fa-users"></i> Konsumen</a>
+                    <a class="nav-item locked" onclick="showDemoLock(event)"><i
+                            class="fa-solid fa-users"></i> Konsumen <i class="fa-solid fa-lock lock-ic"></i></a>
 
-                    <div id="manage-menu" hidden>
+                    <div id="manage-menu">
                         <span class="menu-title">Manajemen</span>
-                        <a class="nav-item" onclick="navigate(event, 'kelola-menu', '/kelola-menu')"><i
-                                class="fa-solid fa-mug-saucer"></i> Kelola Menu</a>
+                        <a class="nav-item locked" onclick="showDemoLock(event)"><i
+                                class="fa-solid fa-mug-saucer"></i> Kelola Menu <i class="fa-solid fa-lock lock-ic"></i></a>
                     </div>
 
                     <span class="menu-title">Akun</span>
-                    <a class="nav-item" onclick="navigate(event, 'profile', '/profile')"><i
-                            class="fa-solid fa-id-card"></i> My Profile</a>
+                    <a class="nav-item locked" onclick="showDemoLock(event)"><i
+                            class="fa-solid fa-id-card"></i> My Profile <i class="fa-solid fa-lock lock-ic"></i></a>
 
-                    <div id="owner-menu" hidden>
+                    <div id="owner-menu">
                         <span class="menu-title">Manajemen Owner</span>
-                        <a class="nav-item" onclick="navigate(event, 'info-user', '/info-user')"><i
-                                class="fa-solid fa-user-shield"></i> Info User</a>
-                        <a class="nav-item" onclick="navigate(event, 'role-management', '/role')"><i
-                                class="fa-solid fa-sliders"></i> Hak Akses Role</a>
+                        <a class="nav-item locked" onclick="showDemoLock(event)"><i
+                                class="fa-solid fa-user-shield"></i> Info User <i class="fa-solid fa-lock lock-ic"></i></a>
+                        <a class="nav-item locked" onclick="showDemoLock(event)"><i
+                                class="fa-solid fa-sliders"></i> Hak Akses Role <i class="fa-solid fa-lock lock-ic"></i></a>
                     </div>
                 </nav>
 
@@ -127,6 +199,8 @@
                     </div>
                 </section>
 
+                <!-- Halaman di bawah ini tetap ada di DOM (untuk keperluan referensi/visual)
+                     tapi tidak bisa diakses lagi lewat menu karena sudah dikunci di sidebar. -->
                 <section id="view-konsumen" class="view-panel">
                     <div class="breadcrumb">Rekap Penjualan Konsumen</div>
                     <div class="metrics-grid" id="consumer-cards-container"></div>
@@ -315,8 +389,33 @@
         </div>
     </div>
 
+    <!-- Toast untuk notifikasi fitur terkunci -->
+    <div id="demo-toast"><i class="fa-solid fa-lock"></i> <span id="demo-toast-text">Fitur ini dinonaktifkan di versi demo</span></div>
+
     <script src="db.js"></script>
     <script src="app.js"></script>
+    <script>
+        // ==== Demo lock handler ====
+        // Mencegah navigasi ke menu selain Dashboard & Transaksi,
+        // dan menampilkan toast + efek shake sebagai feedback visual.
+        let demoToastTimer = null;
+        function showDemoLock(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            const item = event ? event.currentTarget : null;
+            if (item) {
+                item.classList.remove('shake');
+                void item.offsetWidth; // reflow biar animasi bisa diulang
+                item.classList.add('shake');
+            }
+            const toast = document.getElementById('demo-toast');
+            toast.classList.add('show');
+            clearTimeout(demoToastTimer);
+            demoToastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+        }
+    </script>
 </body>
 
 </html>
