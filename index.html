@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AvePOS - Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="login-screen" class="auth-overlay">
+        <div class="auth-card">
+            <div class="brand-logo"><i class="fa-solid fa-mug-hot"></i> AvePOS</div>
+            <h4 style="margin-bottom: 20px; text-align: center;">Silahkan Login</h4>
+            <input type="text" id="login-username" placeholder="Username" class="input-ctrl"
+                onkeypress="if(event.key==='Enter') performLogin()">
+            <input type="password" id="login-password" placeholder="Password" class="input-ctrl"
+                onkeypress="if(event.key==='Enter') performLogin()">
+            <button type="button" class="btn btn-primary btn-block" onclick="performLogin()">Masuk</button>
+            <div style="margin-top:18px; padding:12px; background:#f1f5f9; border-radius:8px; font-size:12px; color:#475569; line-height:1.6;">
+                <b>Demo Akun (data tersimpan di browser kamu):</b><br>
+                Owner &nbsp;: owner / owner123<br>
+                Admin &nbsp;: admin / admin123<br>
+                Kasir &nbsp;: kasir / kasir123
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="path-info"><i class="fa-solid fa-folder-open"></i> <span id="path-indicator">/home</span></div>
+            <div class="badge badge-info" id="role-indicator">Role: -</div>
+        </header>
+
+        <div class="app-body">
+            <aside class="sidebar">
+                <div class="profile-box">
+                    <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+                        alt="Avatar">
+                    <div class="profile-info">
+                        <div id="user-name">Guest</div>
+                        <small id="user-role-label">Pegawai</small>
+                    </div>
+                </div>
+
+                <nav class="nav-menu">
+                    <span class="menu-title">Utama</span>
+                    <a class="nav-item active" onclick="navigate(event, 'dashboard', '/home')"><i
+                            class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                    <a class="nav-item" onclick="navigate(event, 'transaksi', '/transaksi')"><i
+                            class="fa-solid fa-cash-register"></i> Transaksi</a>
+                    <a class="nav-item" onclick="navigate(event, 'konsumen', '/konsumen')"><i
+                            class="fa-solid fa-users"></i> Konsumen</a>
+
+                    <div id="manage-menu" hidden>
+                        <span class="menu-title">Manajemen</span>
+                        <a class="nav-item" onclick="navigate(event, 'kelola-menu', '/kelola-menu')"><i
+                                class="fa-solid fa-mug-saucer"></i> Kelola Menu</a>
+                    </div>
+
+                    <span class="menu-title">Akun</span>
+                    <a class="nav-item" onclick="navigate(event, 'profile', '/profile')"><i
+                            class="fa-solid fa-id-card"></i> My Profile</a>
+
+                    <div id="owner-menu" hidden>
+                        <span class="menu-title">Manajemen Owner</span>
+                        <a class="nav-item" onclick="navigate(event, 'info-user', '/info-user')"><i
+                                class="fa-solid fa-user-shield"></i> Info User</a>
+                        <a class="nav-item" onclick="navigate(event, 'role-management', '/role')"><i
+                                class="fa-solid fa-sliders"></i> Hak Akses Role</a>
+                    </div>
+                </nav>
+
+                <button type="button" class="btn-logout" onclick="performLogout()"><i class="fa-solid fa-right-from-bracket"></i>
+                    Keluar</button>
+            </aside>
+
+            <main class="content-area">
+                <section id="view-dashboard" class="view-panel active">
+                    <div class="breadcrumb">Dashboard / Overview</div>
+                    <div class="metrics-grid">
+                        <div class="card card-metric">
+                            <h3>Penjualan Hari Ini</h3>
+                            <p id="dash-sales">0</p>
+                        </div>
+                        <div class="card card-metric" style="background: #eff6ff; border-color: #bfdbfe;">
+                            <h3 style="color: #1d4ed8;">Total Pemasukan</h3>
+                            <p id="dash-income" style="color: #1e40af;">Rp 0</p>
+                        </div>
+                        <div class="card card-metric" style="background: #f1f5f9; border-color: #cbd5e1;">
+                            <h3 style="color: #475569;">Jumlah Karyawan</h3>
+                            <p id="dash-employees" style="color: #334155;">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-transaksi" class="view-panel" style="height: 100%;">
+                    <div class="pos-wrapper">
+                        <div class="products-grid" id="pos-products-list"></div>
+                        <div class="checkout-sidebar">
+                            <h3 style="font-size:16px; margin-bottom:15px;"><i class="fa-solid fa-receipt"></i> Detail
+                                Transaksi</h3>
+
+                            <label>Nama Konsumen</label>
+                            <input type="text" id="pos-customer-name" class="input-ctrl"
+                                placeholder="Nama pembeli (opsional)">
+
+                            <div class="cart-container" id="pos-cart-items"></div>
+                            <div class="checkout-footer">
+                                <div class="total-row"><span>Total</span><b id="pos-total-price">Rp 0</b></div>
+                                <label>Metode</label>
+                                <select id="pos-pay-type" class="input-ctrl" onchange="toggleCashField()">
+                                    <option value="tunai">Tunai / Cash</option>
+                                    <option value="qris">QRIS</option>
+                                </select>
+                                <div id="cash-input-group">
+                                    <label>Uang Tunai</label>
+                                    <input type="number" id="pos-cash-tendered" class="input-ctrl" placeholder="Rp 0">
+                                </div>
+                                <button type="button" class="btn btn-primary btn-block" style="padding:12px;"
+                                    onclick="checkoutOrder()">Proses & Cetak</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-konsumen" class="view-panel">
+                    <div class="breadcrumb">Rekap Penjualan Konsumen</div>
+                    <div class="metrics-grid" id="consumer-cards-container"></div>
+
+                    <div id="detail-consumer-box" class="card card-table" style="display:none; margin-top: 30px;">
+                        <div style="padding:20px; border-bottom:1px solid #e2e8f0;">
+                            <h4 id="detail-date-title">Data Konsumen</h4>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice</th>
+                                        <th>Konsumen</th>
+                                        <th>Kasir</th>
+                                        <th>Metode</th>
+                                        <th>Total</th>
+                                        <th id="detail-action-header" style="display:none;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detail-consumer-rows"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-kelola-menu" class="view-panel">
+                    <div class="section-header">
+                        <div class="breadcrumb" style="margin:0;">Kelola Menu</div>
+                        <button type="button" class="btn btn-primary" onclick="openAddProductModal()">+ Tambah Menu</button>
+                    </div>
+                    <div class="products-grid" id="manage-products-list"></div>
+                </section>
+
+                <section id="view-profile" class="view-panel">
+                    <div class="breadcrumb">Pengaturan Profil</div>
+                    <div class="card" style="max-width:600px;">
+                        <div class="form-group"><label>Nama Lengkap</label><input type="text" id="prof-nama"
+                                class="input-ctrl"></div>
+                        <div class="form-group"><label>Username</label><input type="text" id="prof-username"
+                                class="input-ctrl"></div>
+                        <div class="form-group"><label>Password</label><input type="password" id="prof-password"
+                                class="input-ctrl"></div>
+                        <div class="form-group"><label>Alamat</label><textarea id="prof-alamat" class="input-ctrl"
+                                style="height:100px; resize:none;"></textarea></div>
+                        <button type="button" class="btn btn-primary" onclick="updateProfileData()">Simpan</button>
+                        <hr style="margin:24px 0; border:none; border-top:1px solid var(--border-color);">
+                        <p style="font-size:12px; color:#94a3b8; margin-bottom:10px;">Ini adalah versi demo portofolio. Semua data tersimpan di browser kamu (localStorage), bukan di server sungguhan.</p>
+                        <button type="button" class="btn btn-secondary" onclick="resetDemoData()"><i class="fa-solid fa-arrow-rotate-left"></i> Reset Data Demo</button>
+                    </div>
+                </section>
+
+                <section id="view-info-user" class="view-panel">
+                    <div class="section-header">
+                        <div class="breadcrumb" style="margin:0;">Info Karyawan</div>
+                        <button type="button" class="btn btn-primary" onclick="openAddUserModal()">+ Tambah User</button>
+                    </div>
+                    <div class="card card-table">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="info-user-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-role-management" class="view-panel">
+                    <div class="breadcrumb">Manajemen Role & Jabatan</div>
+                    <div class="card card-table">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Role Aktif</th>
+                                        <th>Ubah Otoritas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="role-management-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+        <img src="logo.png" alt="" class="page-watermark">
+    </div>
+
+    <div id="qris-modal" class="modal-overlay">
+        <div class="modal-card" style="text-align:center;">
+            <h3><i class="fa-solid fa-qrcode"></i> QRIS GATEWAY</h3>
+            <img id="qris-img" src="" alt="QRIS" class="qris-frame">
+            <h2 id="qris-amount-label" style="color:#22c55e; margin-bottom:20px;">Rp 0</h2>
+            <button type="button" class="btn btn-success btn-block" onclick="confirmQrisPaid()">Konfirmasi Lunas</button>
+        </div>
+    </div>
+
+    <div id="crud-user-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 id="crud-title" style="margin-bottom:20px;">User Data</h3>
+            <input type="hidden" id="crud-id">
+            <div class="form-group"><label>Nama</label><input type="text" id="crud-nama" class="input-ctrl"></div>
+            <div class="form-group"><label>Username</label><input type="text" id="crud-username" class="input-ctrl">
+            </div>
+            <div class="form-group"><label id="lbl-password">Password</label><input type="password" id="crud-password"
+                    class="input-ctrl"></div>
+            <div class="form-group"><label>Alamat</label><input type="text" id="crud-alamat" class="input-ctrl"></div>
+
+            <div id="role-box-container" class="form-group">
+                <label>Role</label>
+                <select id="crud-role" class="input-ctrl">
+                    <option value="kasir">Kasir</option>
+                    <option value="admin">Admin</option>
+                    <option value="owner">Owner</option>
+                </select>
+            </div>
+            <div id="status-box-container" class="form-group" style="display:none;">
+                <label>Status</label>
+                <select id="crud-status" class="input-ctrl">
+                    <option value="aktif">Aktif</option>
+                    <option value="nonaktif">Nonaktif</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:10px;">
+                <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;"
+                    onclick="closeModal('crud-user-modal')">Batal</button>
+                <button type="button" class="btn btn-primary" style="flex:1; justify-content:center;"
+                    onclick="submitUserData()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="crud-product-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 id="product-crud-title" style="margin-bottom:20px;">Tambah Menu</h3>
+            <input type="hidden" id="product-crud-id">
+            <div class="form-group"><label>Nama Menu</label><input type="text" id="product-nama" class="input-ctrl">
+            </div>
+            <div class="form-group"><label>Harga</label><input type="number" id="product-harga" class="input-ctrl">
+            </div>
+            <div class="form-group">
+                <label>Foto Menu (dari file)</label>
+                <input type="file" id="product-foto" accept="image/*" class="input-ctrl"
+                    onchange="previewProductImage(event)">
+                <img id="product-foto-preview" class="upload-preview" style="display:none;">
+            </div>
+            <div style="display:flex; gap:12px; margin-top:10px;">
+                <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;"
+                    onclick="closeModal('crud-product-modal')">Batal</button>
+                <button type="button" class="btn btn-primary" style="flex:1; justify-content:center;"
+                    onclick="submitProductData()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="crud-tx-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 style="margin-bottom:20px;">Edit Transaksi</h3>
+            <input type="hidden" id="tx-crud-id">
+            <div class="form-group"><label>Nama Konsumen</label><input type="text" id="tx-customer-name"
+                    class="input-ctrl"></div>
+            <div class="form-group"><label>Total Harga</label><input type="number" id="tx-total" class="input-ctrl">
+            </div>
+            <div class="form-group">
+                <label>Metode Pembayaran</label>
+                <select id="tx-jenis" class="input-ctrl">
+                    <option value="tunai">Tunai / Cash</option>
+                    <option value="qris">QRIS</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:10px;">
+                <button type="button" class="btn btn-secondary" style="flex:1; justify-content:center;"
+                    onclick="closeModal('crud-tx-modal')">Batal</button>
+                <button type="button" class="btn btn-primary" style="flex:1; justify-content:center;"
+                    onclick="submitTxData()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="db.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
