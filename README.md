@@ -3,7 +3,7 @@
 Aplikasi kasir (POS) untuk coffee shop: login multi-role (Owner/Admin/Kasir), transaksi penjualan, manajemen menu, rekap konsumen harian, dan manajemen staff.
 
 ## 🔗 Demo
-**[Coba demo di sini](#)** — *(ganti link ini dengan URL GitHub Pages kamu setelah deploy)*
+**[Coba demo di sini](https://hzx-greedy.github.io/POSDemo/)**
 
 **Akun demo:**
 | Role  | Username | Password |
