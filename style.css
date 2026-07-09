@@ -566,6 +566,75 @@ body {
     display: block;
 }
 
+/* ============================================================
+   WAJIB LANDSCAPE DI HP
+   Overlay ini nge-block seluruh app kalau device layar kecil
+   (hp) lagi posisi portrait/tegak. Begitu diputar ke landscape,
+   overlay otomatis ilang karena murni CSS media query.
+   ============================================================ */
+.rotate-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #0f172a;
+    color: #f8fafc;
+    z-index: 999999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 30px;
+}
+
+.rotate-overlay i {
+    font-size: 58px;
+    margin-bottom: 22px;
+    color: #38bdf8;
+    animation: rotatePhoneHint 1.6s ease-in-out infinite;
+}
+
+.rotate-overlay h2 {
+    font-size: 19px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.rotate-overlay p {
+    font-size: 13.5px;
+    color: #cbd5e1;
+    max-width: 300px;
+    line-height: 1.6;
+}
+
+.rotate-overlay .brand-mini {
+    position: absolute;
+    top: 22px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: .5px;
+}
+
+@keyframes rotatePhoneHint {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+}
+
+/* Munculin overlay hanya di layar sempit (hp) & posisi tegak */
+@media (max-width: 900px) and (orientation: portrait) {
+    .rotate-overlay {
+        display: flex;
+    }
+
+    .app-container,
+    .auth-overlay {
+        display: none !important;
+    }
+}
+
+/* ============================================================
+   RESPONSIVE UNTUK TABLET (tetap seperti semula)
+   ============================================================ */
 @media (max-width: 1024px) {
     .pos-wrapper {
         grid-template-columns: 1fr;
@@ -576,7 +645,12 @@ body {
     }
 }
 
-@media (max-width: 768px) {
+/* ============================================================
+   FALLBACK: kalau ada tablet/device lebar >900px yg somehow
+   masih portrait, tetap pakai layout stack lama (bukan hp,
+   jadi tidak kena overlay rotate)
+   ============================================================ */
+@media (max-width: 768px) and (orientation: portrait) {
     .app-body {
         flex-direction: column;
         height: auto;
@@ -617,5 +691,155 @@ body {
         top: 50%;
         left: 50%;
         width: 180px;
+    }
+}
+
+/* ============================================================
+   HP DALAM MODE LANDSCAPE (wajib posisi ini di hp)
+   Layout sidebar+content tetap row (default), tinggal
+   dirapetin biar muat di tinggi layar yang pendek.
+   ============================================================ */
+@media (max-width: 900px) and (orientation: landscape) {
+    .app-header {
+        height: 46px;
+        padding: 0 16px;
+    }
+
+    .app-body {
+        height: calc(100vh - 46px);
+    }
+
+    .sidebar {
+        width: 190px;
+        padding: 16px 12px;
+    }
+
+    .profile-box {
+        gap: 8px;
+        padding-bottom: 14px;
+        margin-bottom: 14px;
+    }
+
+    .profile-box img {
+        width: 34px;
+        height: 34px;
+    }
+
+    .profile-info #user-name {
+        font-size: 13px;
+    }
+
+    .menu-title {
+        font-size: 10px;
+        margin: 10px 0 6px 8px;
+    }
+
+    .nav-item {
+        padding: 8px 10px;
+        font-size: 12.5px;
+        gap: 8px;
+    }
+
+    .btn-logout {
+        padding: 8px;
+        font-size: 12.5px;
+    }
+
+    .content-area {
+        padding: 14px;
+    }
+
+    .breadcrumb {
+        margin-bottom: 14px;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .card-metric h3 {
+        font-size: 11px;
+        margin-bottom: 6px;
+    }
+
+    .card-metric p {
+        font-size: 20px;
+    }
+
+    .pos-wrapper {
+        grid-template-columns: 1fr 220px;
+        gap: 12px;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 130px));
+        gap: 10px;
+    }
+
+    .prod-card img {
+        height: 80px;
+    }
+
+    .checkout-sidebar {
+        padding: 14px;
+    }
+
+    .checkout-sidebar h3 {
+        font-size: 13px;
+    }
+
+    .cart-container {
+        margin: 10px 0;
+    }
+
+    .total-row b {
+        font-size: 18px;
+    }
+
+    .modal-card {
+        padding: 18px;
+        max-width: 380px;
+        max-height: 92vh;
+    }
+
+    .auth-card {
+        padding: 22px;
+        max-width: 320px;
+        max-height: 92vh;
+        overflow-y: auto;
+    }
+
+    .brand-logo {
+        font-size: 24px;
+        margin-bottom: 14px;
+    }
+
+    .page-watermark {
+        width: 160px;
+    }
+}
+
+/* HP kecil banget dalam landscape (misal iPhone SE) */
+@media (max-width: 640px) and (orientation: landscape) {
+    .sidebar {
+        width: 150px;
+    }
+
+    .nav-item {
+        font-size: 11.5px;
+        padding: 7px 8px;
+    }
+
+    .pos-wrapper {
+        grid-template-columns: 1fr 190px;
+    }
+
+    .checkout-sidebar {
+        padding: 10px;
     }
 }
