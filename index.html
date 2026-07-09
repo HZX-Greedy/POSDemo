@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>AvePOS - Management System (Demo)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -79,6 +79,14 @@
 </head>
 
 <body>
+
+    <!-- Overlay wajib landscape: CSS-nya ada di style.css (.rotate-overlay) -->
+    <div class="rotate-overlay" id="rotate-overlay">
+        <span class="brand-mini"><i class="fa-solid fa-mug-hot"></i> AvePOS</span>
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <h2>Putar HP Kamu ke Landscape</h2>
+        <p>Aplikasi ini dirancang untuk tampilan horizontal (landscape). Silahkan putar HP kamu agar semua fitur berjalan dengan semestinya.</p>
+    </div>
 
     <div id="login-screen" class="auth-overlay">
         <div class="auth-card">
